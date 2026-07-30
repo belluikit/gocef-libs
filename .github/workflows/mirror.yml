@@ -111,6 +111,21 @@ jobs:
                    snapshot_blob.bin v8_context_snapshot.bin vk_swiftshader_icd.json; do
             [ -f "$dist/Release/$f" ] && cp "$dist/Release/$f" payload/ || true
           done
+
+          # Strip the other shared libraries too, not just libcef.so. This is
+          # not a rounding error: libvk_swiftshader.so ships at 99 MB on arm64
+          # against 14 MB on x64, and that one file was the whole of an
+          # otherwise unexplained 88 MB difference between the two payloads.
+          # --strip-all removes .symtab and leaves .dynsym, so dynamic linking
+          # is unaffected.
+          for so in payload/*.so payload/*.so.1; do
+            [ -f "$so" ] || continue
+            before=$(stat -c%s "$so")
+            ${{ matrix.strip }} --strip-all "$so" || true
+            after=$(stat -c%s "$so")
+            [ "$before" != "$after" ] && \
+              echo "stripped $(basename "$so"): $((before/1048576)) -> $((after/1048576)) MB"
+          done
           [ -f "$dist/Release/chrome-sandbox" ] && cp "$dist/Release/chrome-sandbox" payload/ || true
 
           # Resources go FLAT, beside libcef.so. CEF's own distribution nests
@@ -137,10 +152,13 @@ jobs:
           # Report what is actually being shipped. Anyone bumping CEF should be
           # able to see the composition change without unpacking anything, and
           # an unexplained jump is a reason to look before publishing.
+          # Written to a file rather than piped into head: under `set -o
+          # pipefail`, head exiting early gives sort an EPIPE and fails the
+          # whole step, which is exactly what happened the first time this ran.
           echo "payload total: $(du -sh payload | cut -f1)"
+          find payload -type f -printf '%s\t%P\n' | sort -rn > /tmp/sizes.txt
           echo "largest files:"
-          find payload -type f -printf '%s\t%P\n' | sort -rn | head -12 | \
-            awk -F'\t' '{printf "  %8.1f MB  %s\n", $1/1048576, $2}'
+          awk -F'\t' 'NR<=12 {printf "  %8.1f MB  %s\n", $1/1048576, $2}' /tmp/sizes.txt
           echo "locales/: $(du -sh payload/locales 2>/dev/null | cut -f1)"
 
       - name: Pack and hash
