@@ -168,7 +168,18 @@ jobs:
         run: |
           set -euo pipefail
           name="cef-${VERSION}-${PLATFORM}.tar.zst"
-          tar --zstd -cf "$name" -C payload .
+          # Deterministic: fixed order, fixed timestamps, no ownership. Without
+          # these, tar records filesystem order and mtimes, so two mirrors of
+          # the same upstream build hash differently and the checksum only
+          # proves "this is the file we happened to produce".
+          #
+          # With them, anyone can re-run this workflow on the same CEF version
+          # and get the identical hash — which is what turns the manifest's
+          # SHA-256 from "trust us" into something independently checkable. For
+          # a repository whose whole job is redistributing someone else's
+          # browser engine, that is worth the four flags.
+          tar --zstd --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
+              -cf "$name" -C payload .
           sha256sum "$name" | tee "$name.sha256"
           ls -lh "$name"
           echo "ASSET=$name" >> "$GITHUB_ENV"
