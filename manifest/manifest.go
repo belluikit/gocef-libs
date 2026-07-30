@@ -60,15 +60,21 @@ type Asset struct {
 // committed back. A consumer that finds one empty should refuse to install the
 // asset rather than trust it: an unverified Chromium is the one thing this
 // repository exists to prevent.
+//
+// They are also independently checkable. The tarball is built reproducibly, so
+// re-running the mirror on this CEF version derives the same hashes — verified
+// for both architectures across separate CI runs, not merely intended.
 var Assets = map[Platform]Asset{
 	Linux64: {
 		Platform:     Linux64,
 		Name:         "cef-" + CEFVersion + "-linux64.tar.zst",
+		SHA256:       "66d172f66cf3c007daa033d9d7228d2d4dacb421f45921a30cc020ac3e0cded1",
 		UpstreamSHA1: "233c2d4e5fcf2654c16aa98ff7c0665a2d1fa7c3",
 	},
 	LinuxARM64: {
 		Platform:     LinuxARM64,
 		Name:         "cef-" + CEFVersion + "-linuxarm64.tar.zst",
+		SHA256:       "41b1a9c3a2e99ae3bee989b7088330e27a5280fd7fcf146cc377d7087db55e82",
 		UpstreamSHA1: "29a43f517550fc52a1d690a94f9c8f2f7287f9cc",
 	},
 }
