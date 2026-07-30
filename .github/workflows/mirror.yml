@@ -192,8 +192,20 @@ jobs:
         run: |
           set -euo pipefail
           tag="cef-${VERSION}"
-          gh release view "$tag" >/dev/null 2>&1 || \
-            gh release create "$tag" --title "$tag" --notes "CEF $VERSION mirrored from cef-builds.spotifycdn.com. Upstream checksum verified; libcef.so stripped. See manifest/ for the pin."
+
+          # Create idempotently rather than check-then-create. The matrix runs
+          # one job per architecture concurrently, and both used to see "no
+          # release", both try to create it, and the loser takes an HTTP 422 —
+          # which is exactly how the first publish left a release carrying only
+          # one of the two payloads.
+          gh release create "$tag" --title "$tag" \
+            --notes "CEF $VERSION mirrored from cef-builds.spotifycdn.com. Upstream checksum verified; every shipped library stripped; tarball reproducible. See manifest/ for the pin." \
+            2>/dev/null || true
+
+          # Whoever lost the race must still find the release before uploading,
+          # so a genuine failure is not mistaken for a lost race.
+          gh release view "$tag" >/dev/null
+
           gh release upload "$tag" "$ASSET" "$ASSET.sha256" --clobber
 
       - name: Report the hash for the manifest
