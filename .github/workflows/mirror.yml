@@ -48,7 +48,11 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends llvm zstd gcc-aarch64-linux-gnu
+          # libc6-dev-arm64-cross is not optional: gcc-aarch64-linux-gnu alone
+          # has no target libc headers, and with --no-install-recommends it is
+          # not pulled in — the helper then fails on bits/wordsize.h.
+          sudo apt-get install -y --no-install-recommends \
+            llvm zstd gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
       - name: Fetch and verify upstream
         env:
