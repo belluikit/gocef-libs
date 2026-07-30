@@ -133,7 +133,15 @@ jobs:
           $cc -O2 -I "$dist" -DCEF_API_VERSION=13300 -o payload/cef_helper helper/helper.c -ldl
 
           cp "$dist/LICENSE.txt" payload/LICENSE.cef.txt
-          du -sh payload
+
+          # Report what is actually being shipped. Anyone bumping CEF should be
+          # able to see the composition change without unpacking anything, and
+          # an unexplained jump is a reason to look before publishing.
+          echo "payload total: $(du -sh payload | cut -f1)"
+          echo "largest files:"
+          find payload -type f -printf '%s\t%P\n' | sort -rn | head -12 | \
+            awk -F'\t' '{printf "  %8.1f MB  %s\n", $1/1048576, $2}'
+          echo "locales/: $(du -sh payload/locales 2>/dev/null | cut -f1)"
 
       - name: Pack and hash
         env:
