@@ -51,8 +51,10 @@ jobs:
           # libc6-dev-arm64-cross is not optional: gcc-aarch64-linux-gnu alone
           # has no target libc headers, and with --no-install-recommends it is
           # not pulled in — the helper then fails on bits/wordsize.h.
+          # brotli decodes Chromium's credits page out of resources.pak
+          # (scripts/extract_credits.py); Python's stdlib has no brotli.
           sudo apt-get install -y --no-install-recommends \
-            llvm zstd gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+            llvm zstd brotli gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
       - name: Fetch and verify upstream
         env:
@@ -148,6 +150,18 @@ jobs:
           $cc -O2 -I "$dist" -DCEF_API_VERSION=13300 -o payload/cef_helper helper/helper.c -ldl
 
           cp "$dist/LICENSE.txt" payload/LICENSE.cef.txt
+
+          # Chromium's third-party notices. CEF's LICENSE.txt covers CEF only;
+          # the licences of everything Chromium bundles (FFmpeg, ICU, libvpx,
+          # BoringSSL, ... several hundred projects, some LGPL) exist in the
+          # distribution only as the about:credits page compressed inside
+          # resources.pak. Extract it so the notices travel with the binaries.
+          # The script fails unless it finds exactly one credits page, so a
+          # Chromium change breaks the mirror instead of shipping without it.
+          python3 -I scripts/extract_credits.py payload/resources.pak payload/CREDITS.html
+          # CEF's own README, which describes the distribution and its
+          # licensing, when the distribution has one.
+          [ -f "$dist/README.txt" ] && cp "$dist/README.txt" payload/README.cef.txt || true
 
           # Report what is actually being shipped. Anyone bumping CEF should be
           # able to see the composition change without unpacking anything, and
