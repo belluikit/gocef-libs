@@ -7,11 +7,12 @@ asset.
 
 ## Why the payload is not in the module
 
-`goffmpeg-libs` commits FFmpeg's static libraries straight into a Go module per
-platform, and that works because they are ~25 MB each. It does not generalise: a
-**stripped** `libcef.so` is **256 MiB**, which is 2.5x GitHub's hard 100 MB
-per-file limit, and the full per-architecture payload is ~350 MB. Git LFS is not
-a way out either, because the Go module proxy does not resolve LFS pointers.
+[`goffmpeg-libs`](https://github.com/belluikit/goffmpeg-libs) commits FFmpeg's
+static libraries straight into a Go module per platform, and that works because
+they are ~25 MB each. It does not generalise: a **stripped** `libcef.so` is
+**256 MiB**, which is 2.5x GitHub's hard 100 MB per-file limit, and the full
+per-architecture payload is ~350 MB. Git LFS is not a way out either, because
+the Go module proxy does not resolve LFS pointers.
 
 So the shape is inverted. The binaries travel as **release assets** — no git
 involvement, 2 GB per asset allowed — and the Go module carries only the pin:
@@ -47,7 +48,9 @@ locales/                  every locale (~48 MB)
 libvk_swiftshader.so      software Vulkan, for a machine with no usable GPU
 libvulkan.so.1, libEGL.so, libGLESv2.so
 chrome-sandbox            see the sandbox note below
-LICENSE.cef.txt
+LICENSE.cef.txt           CEF's licence
+CREDITS.html              Chromium's third-party notices (about:credits)
+README.cef.txt            CEF's distribution README, when upstream has one
 ```
 
 Flat is not a preference. CEF's own distribution nests resources under
@@ -87,8 +90,21 @@ optional: mirroring a browser engine means owning its update treadmill.
 ## Provenance and licence
 
 Built from CEF's official binary distributions at `cef-builds.spotifycdn.com`,
-unmodified apart from stripping debug symbols and rearranging the layout.
+unmodified apart from stripping debug symbols, rearranging the layout and adding
+the extracted `CREDITS.html`.
 
-CEF itself is BSD-3-Clause. Chromium carries a larger set of licences, including
-LGPL components — the same situation as `goffmpeg-libs`, which ships LGPL FFmpeg.
-`LICENSE.cef.txt` travels inside every payload.
+This repository's own code is BSD-3-Clause, see [LICENSE](LICENSE). The payload
+is not ours and carries its own licences:
+
+- **CEF** is BSD-3-Clause. Its licence ships in every payload as
+  `LICENSE.cef.txt`.
+- **Chromium** bundles several hundred third-party projects under many licences,
+  some of them LGPL (as FFmpeg is in [`goffmpeg-libs`](https://github.com/belluikit/goffmpeg-libs)).
+  Their notices are Chromium's about:credits page, which the payload otherwise
+  carries only compressed inside `resources.pak`. The mirror workflow extracts it with
+  [`scripts/extract_credits.py`](scripts/extract_credits.py) and ships it as
+  `CREDITS.html`. Payloads published before that change do not contain it.
+
+Anyone redistributing a payload, or an application that bundles one, is
+responsible for meeting those licences; this repository does not make that
+determination for you.
