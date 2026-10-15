@@ -1,0 +1,13 @@
+# OS and editor files, Go test and profiling output
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+*.test
+*.out
+*.prof
+coverage.out
+coverage.html
+coverage.txt
