@@ -18,8 +18,8 @@ import "fmt"
 // The CEF build this repository mirrors. Bumping these is the whole content of
 // a Chromium security update: change them, run the mirror workflow, publish.
 const (
-	CEFVersion      = "151.3.12+gd9cea67+chromium-151.0.7922.47"
-	ChromiumVersion = "151.0.7922.47"
+	CEFVersion      = "154.0.34+g14c5a08+chromium-154.0.8037.98"
+	ChromiumVersion = "154.0.8037.98"
 
 	// UpstreamHost is where the mirror workflow fetches from. It is recorded
 	// rather than hard-coded in the workflow so provenance and process live in
@@ -68,14 +68,14 @@ var Assets = map[Platform]Asset{
 	Linux64: {
 		Platform:     Linux64,
 		Name:         "cef-" + CEFVersion + "-linux64.tar.zst",
-		SHA256:       "90c05f4672ab467b1cc2c31993a4937ab280709a481ef53f6daaccd7a15560b6",
-		UpstreamSHA1: "233c2d4e5fcf2654c16aa98ff7c0665a2d1fa7c3",
+		SHA256:       "cf12f8b59045c473702b1b21d6127ea02470a990f937ab92a393818aeadd539d",
+		UpstreamSHA1: "15c91ad767097217b2e82ba8b933fe30b134be69",
 	},
 	LinuxARM64: {
 		Platform:     LinuxARM64,
 		Name:         "cef-" + CEFVersion + "-linuxarm64.tar.zst",
-		SHA256:       "1f123598fb5b442f643a5437344f536dfa9c898dcf4ef6ea6acc722c2becce04",
-		UpstreamSHA1: "29a43f517550fc52a1d690a94f9c8f2f7287f9cc",
+		SHA256:       "2d8dfb08448b92009871f6a14ca2a33820565dd04f7b18a1c174d015d3907185",
+		UpstreamSHA1: "fa85793519eef199e6b6fa8cc8d6f0eb45c6dac2",
 	},
 }
 
