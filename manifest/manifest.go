@@ -68,13 +68,13 @@ var Assets = map[Platform]Asset{
 	Linux64: {
 		Platform:     Linux64,
 		Name:         "cef-" + CEFVersion + "-linux64.tar.zst",
-		SHA256:       "",
+		SHA256:       "bbba8e19bb539043fdd5217cc094dc2e459c1faf1da1a64383ade4a0009d7686",
 		UpstreamSHA1: "0b4c2189e3b93033bbef13add1a86f66849c1e62",
 	},
 	LinuxARM64: {
 		Platform:     LinuxARM64,
 		Name:         "cef-" + CEFVersion + "-linuxarm64.tar.zst",
-		SHA256:       "",
+		SHA256:       "73489c014e489669237424f894a814be1c82fc00b3e9b72dc33e33574557a988",
 		UpstreamSHA1: "ea8f06c33514f9f3d75ca003437f9ac45223e07d",
 	},
 }
